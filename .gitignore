@@ -24,6 +24,6 @@ build/
 helpers/*
 
 # Arquivos de input
-**/input/*
+**/input/*.xlsx
 # Arquivos de output
-**/output/*
+**/output/*.csv
