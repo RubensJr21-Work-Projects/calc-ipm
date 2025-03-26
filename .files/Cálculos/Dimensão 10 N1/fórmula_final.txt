@@ -1,0 +1,72 @@
+Cálculo da Dimensão N1:
+=BYROW(
+    QUERY(V3_0Q; "SELECT BA, C, AM, AN, AO, AP, AQ, AR, AS, AT, AU, AV, AW, AX, AY, AZ where BA is not NULL");
+    LAMBDA(
+        row;
+        LET(
+            _uuid; ÍNDICE(row; 1; 1);
+            dt_aplicacao_formulario; ÍNDICE(row; 1; 2);
+
+            group_membros_current_uuid; QUERY(group_membros; "SELECT C where AO '"& __uuid &"'");
+            tem_criancas_adolescentes; REDUCE(
+                                        TRUE;
+                                        group_membros_current_uuid;
+                                        LAMBDA(
+                                            acumulador;
+                                            row_group_membros;
+                                            E(
+                                                acumulador;
+                                                LET(
+                                                    dt_Nascimento; ÍNDICE(row_group_membros; 1; 1);
+                                                    idade; DATA_DIF_ANY(
+                                                            dt_aplicacao_formulario;
+                                                            dt_Nascimento;
+                                                            "Y"
+                                                        );
+                                                    eh_crianca; E(0 <= idade; idade <= 18);
+                                                )
+                                            )
+                                        )
+                                    );
+
+            opt_Ebia01; ÍNDICE(row; 1; 3);
+            opt_Ebia02; ÍNDICE(row; 1; 4);
+            opt_Ebia03; ÍNDICE(row; 1; 5);
+            opt_Ebia04; ÍNDICE(row; 1; 6);
+            opt_Ebia05; ÍNDICE(row; 1; 7);
+            opt_Ebia06; ÍNDICE(row; 1; 8);
+            opt_Ebia07; ÍNDICE(row; 1; 9);
+            opt_Ebia08; ÍNDICE(row; 1; 10);
+            opt_Ebia09; ÍNDICE(row; 1; 11);
+            opt_Ebia10; ÍNDICE(row; 1; 12); 
+            opt_Ebia11; ÍNDICE(row; 1; 13); 
+            opt_Ebia12; ÍNDICE(row; 1; 14); 
+            opt_Ebia13; ÍNDICE(row; 1; 15); 
+            opt_Ebia14; ÍNDICE(row; 1; 16); 
+
+            soma_qtd_de_S_EBIA; SOMA(
+                                SE(opt_Ebia01 = "S"; 1; 0);
+                                SE(opt_Ebia02 = "S"; 1; 0);
+                                SE(opt_Ebia03 = "S"; 1; 0);
+                                SE(opt_Ebia04 = "S"; 1; 0);
+                                SE(opt_Ebia05 = "S"; 1; 0);
+                                SE(opt_Ebia06 = "S"; 1; 0);
+                                SE(opt_Ebia07 = "S"; 1; 0);
+                                SE(opt_Ebia08 = "S"; 1; 0);
+                                SE(opt_Ebia09 = "S"; 1; 0);
+                                SE(opt_Ebia10 = "S"; 1; 0);
+                                SE(opt_Ebia11 = "S"; 1; 0);
+                                SE(opt_Ebia12 = "S"; 1; 0);
+                                SE(opt_Ebia13 = "S"; 1; 0);
+                                SE(opt_Ebia14 = "S"; 1; 0)
+                            );
+
+            estah_em_inseguranca_alimentar_moderada_ou_grave; OU(
+                E(tem_criancas_adolescentes; soma_qtd_de_S_EBIA > 5);
+                E(NÃO(tem_criancas_adolescentes); soma_qtd_de_S_EBIA > 3)
+            );
+
+            SE(estah_em_inseguranca_alimentar_moderada_ou_grave; ,2; 0)
+        )
+    )
+)

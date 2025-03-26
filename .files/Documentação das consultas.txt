@@ -1,0 +1,243 @@
+Consulta que devolve todos os adultos indicando se os adultos completaram o ensino fundamental
+=QUERY(
+    BYROW(
+        QUERY(group_membros; "SELECT C, AA, AB where AO = 'fdf0b1ef-c9f6-4952-8303-fb0a945c7ccd'");
+        LAMBDA(
+            row;
+            SPLIT(
+                TEXTJOIN(
+                    ",";
+                    FALSO;
+                    ÍNDICE(row; 1; 1);
+                    DATA_DIF_ANY(
+                        ÍNDICE(row; 1; 1);
+                        DATA(2024;12;17);
+                        "Y"
+                    ) >= 25;
+                    E(
+                        NÃO(IN_ARRAY(
+                            ÍNDICE(row; 1; 2); {"EMD"\"EJM"\"SUP"}
+                        ));
+                        NÃO(IN_ARRAY(
+                            ÍNDICE(row; 1; 3); {"1G8"\"F9A"\"M1A"\"M2A"\"M3A"}
+                        ))
+                    )
+                );
+                ","
+            )
+        )
+    )
+    ; "SELECT Col3 where Col2 = TRUE"
+);
+
+Usa a consulta para cada adulto na casa se ele já completou o ensino fundamental e retorna se todos eles completaram
+=REDUCE(
+    TRUE;
+    QUERY(
+        BYROW(
+            QUERY(group_membros; "SELECT C, AA, AB where AO = 'fdf0b1ef-c9f6-4952-8303-fb0a945c7ccd'");
+            LAMBDA(
+                row;
+                SPLIT(
+                    TEXTJOIN(
+                        ",";
+                        FALSO;
+                        ÍNDICE(row; 1; 1);
+                        DATA_DIF_ANY(
+                            ÍNDICE(row; 1; 1);
+                            DATA(2024;12;17);
+                            "Y"
+                        ) >= 25;
+                        E(
+                            NÃO(IN_ARRAY(
+                                ÍNDICE(row; 1; 2); {"EMD"\"EJM"\"SUP"}
+                            ));
+                            NÃO(IN_ARRAY(
+                                ÍNDICE(row; 1; 3); {"1G8"\"F9A"\"M1A"\"M2A"\"M3A"}
+                            ))
+                        )
+                    );
+                    ","
+                )
+            )
+        )
+        ; "SELECT Col3 where Col2 = TRUE"
+    );
+    LAMBDA(bool;row;E(bool;row))
+)
+
+Generaliza a função anterior para que seja executada para todas os IDS da Tabela Principal
+OBS: o único jeito de GERAR um #N/A é para o caso da consulta que é passada para o REDUCE não retornar nenhum registro
+=BYROW(
+    QUERY(Tabela_1; "SELECT Col1, Col3 where Col1 is not NULL");
+    LAMBDA(row_root;
+        SEERRO(
+            SE(
+                REDUCE(
+                    TRUE;
+                    QUERY(
+                        BYROW(
+                            QUERY(group_membros; "SELECT C, AA, AB where AO = '"&ÍNDICE(row_root; 1; 1)&"'");
+                            LAMBDA(
+                                row;
+                                SPLIT(
+                                    TEXTJOIN(
+                                        ",";
+                                        FALSO;
+                                        ÍNDICE(row; 1; 1);
+                                        DATA_DIF_ANY(
+                                            ÍNDICE(row; 1; 1);
+                                            ÍNDICE(row_root; 1; 2);
+                                            "Y"
+                                        ) >= 25;
+                                        E(
+                                            NÃO(IN_ARRAY(
+                                                ÍNDICE(row; 1; 2); {"EMD"\"EJM"\"SUP"}
+                                            ));
+                                            NÃO(IN_ARRAY(
+                                                ÍNDICE(row; 1; 3); {"1G8"\"F9A"\"M1A"\"M2A"\"M3A"}
+                                            ))
+                                        )
+                                    );
+                                    ","
+                                )
+                            )
+                        )
+                        ; "SELECT Col3 where Col2 = TRUE"
+                    );
+                    LAMBDA(bool;row;E(bool;row))
+                );
+                ,1;
+                0
+            );
+            0 
+        )
+    )
+)
+
+Gera planilha "group_membros" adicionando uma coluna com o ID da Família
+=ARRAYFORMULA(SPLIT(ARRAYFORMULA(BYROW(ARRAYFORMULA(SE(group_membros[#ALL] = ""; " "; group_membros[#ALL])); LAMBDA(linha; SEERRO(TEXTJOIN("/|\"; FALSO;linha) & "/|\" & PROCV(ÍNDICE(linha; 1; 41);QUERY(V3_0Q; "SELECT BA, B where B is not NULL AND BA is not NULL");2;FALSO); TEXTJOIN("/|\"; FALSO;linha) & "/|\" & "ID da Família")))); "/|\"))
+
+SOMATÓRIO_RENDA_DE_TODOS_MORADORES:
+=BYROW(
+    QUERY(
+        group_membros;
+        "SELECT AO, SUM(AC) + SUM(AD) + SUM(AF) + SUM(AH), COUNT(AO) GROUP BY AO"
+    );
+    LAMBDA(row;
+        SE(
+            ÍNDICE(row;1;3)="count ";
+            SPLIT("uuid,sum_AC_AD_AF_AH,qtd_membros,integer_PBF,integer_Estadual,integer_Municipal"; ",");
+            SPLIT(
+                TEXTJOIN("/|\"; FALSO; row)
+                & "/|\" &
+                TEXTJOIN("/|\"; FALSO;
+                    QUERY(V3_0Q; "SELECT AI, AJ, AK where BA = '"&ÍNDICE(row; 1; 1)&"'")
+                );
+            "/|\")
+        )
+    )
+)
+
+Geração de coluna diretamente com os dados sem planilhas intermediárias
+=LET(
+    table; BYROW(
+        QUERY(
+            group_membros;
+            "SELECT AO, SUM(AC) + SUM(AD) + SUM(AF) + SUM(AH), COUNT(AO) GROUP BY AO"
+        );
+        LAMBDA(row;
+            SE(
+                ÍNDICE(row;1;3)="count ";
+                SPLIT("uuid,sum_AC_AD_AF_AH,qtd_membros,integer_PBF,integer_Estadual,integer_Municipal"; ",");
+                SPLIT(
+                    TEXTJOIN("/|\"; FALSO; row)
+                    & "/|\" &
+                    TEXTJOIN("/|\"; FALSO;
+                        QUERY(V3_0Q; "SELECT AI, AJ, AK where BA = '"&ÍNDICE(row; 1; 1)&"'")
+                    );
+                "/|\")
+            )
+        )
+    );
+    table_1; QUERY(Tabela_1[Submission_uuid]; "SELECT * where Col1 is NOT NULL");
+    ARRAYFORMULA(
+        SE(
+            (
+                (
+                    SEERRO(PROCV(table_1; table; 2; FALSE); 0) +
+                    SEERRO(PROCV(table_1; table; 4; FALSE); 0) +
+                    SEERRO(PROCV(table_1; table; 5; FALSE); 0) +
+                    SEERRO(PROCV(table_1; table; 6; FALSE); 0)
+                ) / SEERRO(PROCV(table_1; table; 3; FALSE); 1)
+            ) < 670,6;
+            0,1;
+            0
+        )
+    )
+)
+
+Cálculo da dimensão S1:
+=BYROW(
+    QUERY(Tabela_1[Submission_uuid]; "SELECT Col1 where Col1 is not NULL");
+    LAMBDA(
+        cell;
+        LET(
+            CORRESPONDENCIA_EXATA; 0;
+            Dt_Coleta; ÍNDICE(Tabela_1[DATA DE APLICAÇÃO]; CORRESP(cell; Tabela_1[Submission_uuid]; CORRESPONDENCIA_EXATA));
+            opt_Ebia1; ÍNDICE(V3_0Q[opt_Ebia1]; CORRESP(cell; V3_0Q[_uuid]; CORRESPONDENCIA_EXATA));
+
+            moradores_x_condicao; BYROW(
+                                    QUERY(group_membros; "SELECT C, M, O, P, Q, U where AO = '" & cell & "'");
+                                    LAMBDA(
+                                        row;
+                                        LET(
+                                            dt_Nascimento; ÍNDICE(row; 1; 1);
+                                            idade; DATA_DIF_ANY(
+                                                Dt_Coleta;
+                                                dt_Nascimento;
+                                                "Y"
+                                            );
+                                            bool_vacinas; ÍNDICE(row; 1; 2);
+                                            opt_doencas; ÍNDICE(row; 1; 3);
+                                            bool_acomp_SUS; ÍNDICE(row; 1; 4);
+                                            opt_Deficiencias; ÍNDICE(row; 1; 5);
+                                            opt_tec_assistiva; ÍNDICE(row; 1; 6);
+
+                                            OU(
+                                                Não(opt_doencas = "");
+                                                E(
+                                                    E(1 <= idade; idade < 18);
+                                                    bool_vacinas = "N"
+                                                );
+                                                E(
+                                                    Não(opt_Deficiencias = "");
+                                                    opt_tec_assistiva = "V"
+                                                )
+                                            )
+                                        )
+                                    )
+                                );
+            existe_gravida_sem_pre_natal; opt_Ebia1 = "N";
+            existe_morador_com_outras_condicoes; REDUCE(
+                                                    TRUE;
+                                                    moradores_x_condicao;
+                                                    LAMBDA(
+                                                        acumulador;
+                                                        valor;
+                                                        E(acumulador; valor)
+                                                    )
+                                                );
+            retorno; SE(
+                OU(
+                    existe_gravida_sem_pre_natal;
+                    existe_morador_com_outras_condicoes
+                );
+                ,2;
+                0
+            );
+
+            retorno
+        )
+    )
+)

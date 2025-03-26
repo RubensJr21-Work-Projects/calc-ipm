@@ -1,0 +1,71 @@
+Cálculo da Dimensão E1:
+=BYROW(
+    QUERY(Tabela_1[Submission_uuid]; "SELECT Col1 where Col1 is not NULL");
+    LAMBDA(
+        cell;
+        LET(
+            dt_aplicacao_formulario; QUERY(DB_Familias; "SELECT F where A = '" & cell & "'");
+            
+            group_membros_current_uuid; QUERY(DB_membros; "SELECT D, Q, R, N, O, P, M where A = '" & cell & "'");
+
+            membros_atendem_ao_requisito; BYROW(
+                                            group_membros_current_uuid;
+                                            LAMBDA(
+                                                row;
+                                                LET(
+                                                    dt_Nascimento; ÍNDICE(row; 1; 1);
+                                                    opt_educacao; ÍNDICE(row; 1; 2);
+                                                    opt_educacao_Grad; ÍNDICE(row; 1; 3);
+                                                    bool_Frequenta_escola; ÍNDICE(row; 1; 4);
+                                                    bool_exclusao_escolar; ÍNDICE(row; 1; 5);
+                                                    bool_Matriculado_escola; ÍNDICE(row; 1; 6);
+                                                    bool_Esta_estudando; ÍNDICE(row; 1; 7);
+                                                    
+                                                    idade; DATA_DIF_ANY(
+                                                        dt_aplicacao_formulario;
+                                                        dt_Nascimento;
+                                                        "Y"
+                                                    ); 
+
+                                                    OU(
+                                                        E(
+                                                            OU(
+                                                                NÃO(IN_ARRAY(opt_educacao; {"EJM"\"SUP"}));
+                                                                NÃO(opt_educacao_Grad = "M3A")
+                                                            );
+                                                            E(3 < idade; idade < 18);
+                                                            OU(
+                                                                bool_Frequenta_escola = "N";
+                                                                bool_exclusao_escolar = "N";
+                                                                bool_Matriculado_escola = "N"
+                                                            )
+                                                        );
+                                                        E(
+                                                            OU(
+                                                                NÃO(IN_ARRAY(opt_educacao; {"EJM"\"SUP"}));
+                                                                NÃO(opt_educacao_Grad = "M3A")
+                                                            );
+                                                            E(18 <= idade; idade < 25);
+                                                            bool_Esta_estudando = "N"
+                                                        )
+                                                    )
+                                                )
+                                            )
+                                        );
+            algum_membro_atende_ao_requisito; REDUCE(
+                                                TRUE;
+                                                membros_atendem_ao_requisito;
+                                                LAMBDA(
+                                                    acumulador;
+                                                    valor;
+                                                    E(
+                                                        acumulador;
+                                                        valor
+                                                    )
+                                                )
+                                            );
+            
+            SE(algum_membro_atende_ao_requisito; ,1; 0)
+        )
+    )
+)

@@ -1,0 +1,45 @@
+=IFS(
+     OBTER_MENOR_INTERVALO(V3_0Q[_uuid];group_membros[_submission__uuid]); "<";
+          PROCV(
+               ARRAYFORMULA(group_membros[_submission__uuid]);
+               ARRAYFORMULA({
+                    QUERY(V3_0Q; "SELECT BA, B where BA is not NULL AND B is not NULL");
+                    GERA_LINHAS_COM_DIFERENCA_ENTRE_INTERVALOS(
+                         V3_0Q[_uuid];
+                         group_membros[_submission__uuid];
+                         2)
+                    });
+               2
+               );
+     OBTER_MENOR_INTERVALO(V3_0Q[_uuid];group_membros[_submission__uuid]); ">";
+          PROCV(
+               ARRAYFORMULA({group_membros[_submission__uuid]; GERA_LINHAS_COM_DIFERENCA_ENTRE_INTERVALOS(V3_0Q[_uuid]; group_membros[_submission__uuid]; 1)});
+               QUERY(V3_0Q; "SELECT BA, B");
+               2
+               );
+     OBTER_MENOR_INTERVALO(V3_0Q[_uuid];group_membros[_submission__uuid]); "=";
+          PROCV(
+               ARRAYFORMULA(group_membros[_submission__uuid]);
+               QUERY(V3_0Q; "SELECT BA, B")               
+               2
+               )
+)
+
+
+=PROCV(
+     ARRAYFORMULA(QUERY(group_membros; "SELECT AP where AP is not NULL"));
+     ARRAYFORMULA({
+          QUERY(V3_0Q; "SELECT BA, B where B is not NULL AND BA is not NULL");
+          GERA_LINHAS_COM_DIFERENCA_ENTRE_INTERVALOS(V3_0Q[_uuid];group_membros[_submission__uuid];2)
+          });
+     2)
+
+"Estava na planilha Página 5"
+=ARRAYFORMULA(PROCV(M3:M3171;N3:O3171;2;FALSO()))
+
+COM ISSO EU SEI AS PESSOAS QUE EU VOU SOMAR
+
+=ARRAYFORMULA(PROCV(ARRAYFORMULA(QUERY(group_membros; "SELECT AP where AP is not NULL"));ARRAYFORMULA({
+          QUERY(V3_0Q; "SELECT BA, B where B is not NULL AND BA is not NULL");
+          GERA_LINHAS_COM_DIFERENCA_ENTRE_INTERVALOS(V3_0Q[_uuid];group_membros[_submission__uuid];2)
+          });2;FALSO()))

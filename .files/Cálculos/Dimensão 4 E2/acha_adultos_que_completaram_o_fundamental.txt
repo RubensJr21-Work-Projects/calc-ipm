@@ -1,0 +1,67 @@
+Consulta que devolve todos os adultos indicando se os adultos completaram o ensino fundamental
+=QUERY(
+    BYROW(
+        QUERY(group_membros; "SELECT C, AA, AB where AO = 'fdf0b1ef-c9f6-4952-8303-fb0a945c7ccd'");
+        LAMBDA(
+            row;
+            SPLIT(
+                TEXTJOIN(
+                    ",";
+                    FALSO;
+                    ÍNDICE(row; 1; 1);
+                    DATA_DIF_ANY(
+                        ÍNDICE(row; 1; 1);
+                        DATA(2024;12;17);
+                        "Y"
+                    ) >= 25;
+                    E(
+                        NÃO(IN_ARRAY(
+                            ÍNDICE(row; 1; 2); {"EMD"\"EJM"\"SUP"}
+                        ));
+                        NÃO(IN_ARRAY(
+                            ÍNDICE(row; 1; 3); {"1G8"\"F9A"\"M1A"\"M2A"\"M3A"}
+                        ))
+                    )
+                );
+                ","
+            )
+        )
+    )
+    ; "SELECT Col3 where Col2 = TRUE"
+);
+
+Usa a consulta para cada adulto na casa se ele já completou o ensino fundamental e retorna se todos eles completaram
+=REDUCE(
+    TRUE;
+    QUERY(
+        BYROW(
+            QUERY(group_membros; "SELECT C, AA, AB where AO = 'fdf0b1ef-c9f6-4952-8303-fb0a945c7ccd'");
+            LAMBDA(
+                row;
+                SPLIT(
+                    TEXTJOIN(
+                        ",";
+                        FALSO;
+                        ÍNDICE(row; 1; 1);
+                        DATA_DIF_ANY(
+                            ÍNDICE(row; 1; 1);
+                            DATA(2024;12;17);
+                            "Y"
+                        ) >= 25;
+                        E(
+                            NÃO(IN_ARRAY(
+                                ÍNDICE(row; 1; 2); {"EMD"\"EJM"\"SUP"}
+                            ));
+                            NÃO(IN_ARRAY(
+                                ÍNDICE(row; 1; 3); {"1G8"\"F9A"\"M1A"\"M2A"\"M3A"}
+                            ))
+                        )
+                    );
+                    ","
+                )
+            )
+        )
+        ; "SELECT Col3 where Col2 = TRUE"
+    );
+    LAMBDA(bool;row;E(bool;row))
+)

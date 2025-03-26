@@ -1,0 +1,30 @@
+=BYROW(
+    QUERY(Tabela_1[Submission_uuid]; "SELECT Col1 where Col1 is not NULL");
+    LAMBDA(
+        cell;
+        LET(
+            familia_sem_internet; REDUCE(
+                TRUE;
+                QUERY(group_membros; "SELECT G where AO = '"&cell&"'");
+                LAMBDA(
+                    bool;bool_internet;
+                    E(
+                        bool;
+                        Não(bool_internet = "N")
+                    )
+                )
+            );
+            SE(
+                familia_sem_internet;
+                0,05;
+                0
+            )
+        )
+    )
+)
+
+=REDUCE(
+    TRUE;
+    QUERY(group_membros; "SELECT G where AO = 'fdf0b1ef-c9f6-4952-8303-fb0a945c7ccd'");
+    LAMBDA(bool;bool_internet;E(bool;Não(bool_internet = "N")))
+)

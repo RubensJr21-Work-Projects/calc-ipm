@@ -1,0 +1,1 @@
+=QUERY(DB_Familias; "Select A, C, F, D, E where A is not NULL")

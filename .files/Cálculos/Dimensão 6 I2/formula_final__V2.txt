@@ -1,0 +1,29 @@
+=BYROW(
+    QUERY(DB_Familias; "SELECT F, L, M where A is not NULL");
+    LAMBDA(
+        row;
+        LET(
+            Dt_Coleta; ÍNDICE(row; 1; 1);
+            bool_Banheiro; ÍNDICE(row;1;2);
+            opt_Escoamento; ÍNDICE(row;1;3);
+            SE(
+                OU(
+                    ÉCÉL.VAZIA(Dt_Coleta);
+                    Dt_Coleta = ""
+                );
+                "";
+                SE(
+                    OU(
+                        bool_Banheiro="N";
+                        IN_ARRAY(
+                            opt_Escoamento;
+                            {"F"\"V"\"D"\"O"}
+                        )
+                    );
+                    0,05;
+                    0
+                )
+            )
+        )
+    )
+)

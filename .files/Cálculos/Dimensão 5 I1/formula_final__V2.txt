@@ -1,0 +1,22 @@
+=BYROW(
+    QUERY(DB_Familias; "SELECT F, G where A is not NULL");
+    LAMBDA(
+        row;
+        LET(
+            Dt_Coleta; ÍNDICE(row; 1; 1);
+            bool_Agua30min; ÍNDICE(row; 1; 2);
+            SE(
+                OU(
+                    ÉCÉL.VAZIA(Dt_Coleta);
+                    Dt_Coleta = ""
+                );
+                "" ;
+                SE(
+                    bool_Agua30min = "N";
+                    0,05;
+                    0
+                )
+            )
+        )
+    )
+)

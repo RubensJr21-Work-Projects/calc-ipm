@@ -1,0 +1,1 @@
+=QUERY(V3.0Q!A2:BE819; "Select BA,BD,A,B,BE")

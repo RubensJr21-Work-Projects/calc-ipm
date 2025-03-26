@@ -1,0 +1,28 @@
+=BYROW(
+    QUERY(V3_0Q; "SELECT X, Y, Z, AA where BA = 'fdf0b1ef-c9f6-4952-8303-fb0a945c7ccd'");
+    LAMBDA(
+        row;
+        LET(
+            opt_Energia; ÍNDICE(row; 1; 1);
+            opt_EnergiaRede; ÍNDICE(row; 1; 2);
+            opt_EnergiaCozinha; ÍNDICE(row; 1; 3);
+            opt_EnergiaEscassez; ÍNDICE(row; 1; 4);
+            SE(
+                OU(
+                    IN_ARRAY(opt_Energia; {"G"\"V"\"O"});
+                    E(
+                        IN_ARRAY(opt_Energia; {"M"\"C"\"S"});
+                        IN_ARRAY(opt_EnergiaRede; {"H"\"O"})
+                    );
+                    E(
+                        IN_ARRAY(opt_EnergiaCozinha; {"G"\"B"\"E"});
+                        IN_ARRAY(opt_EnergiaEscassez; {"S"\"A"})
+                    );
+                    IN_ARRAY(opt_EnergiaCozinha; {"X"\"O"})
+                );
+                0,05;
+                0
+            )
+        )
+    )
+) 

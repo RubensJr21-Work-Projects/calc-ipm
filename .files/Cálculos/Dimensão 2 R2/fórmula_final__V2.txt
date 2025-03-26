@@ -1,0 +1,42 @@
+Dimensão R2:
+Geração de coluna diretamente com os dados sem planilhas intermediárias
+=LET(
+    table; BYROW(
+        QUERY(
+            DB_Membros;
+            "SELECT A, SUM(S) + SUM(T) + SUM(U) + SUM(V), COUNT(A) GROUP BY A where A is not NULL"
+        );
+        LAMBDA(row;
+            LET(
+                coluna3 = ÍNDICE(row;1;3);
+                __uuid; ÍNDICE(row; 1; 1);
+                SE(
+                    coluna3 = "count ";
+                    SPLIT("uuid,sum_S_T_AF_V,qtd_membros,integer_PBF,integer_Estadual,integer_Municipal"; ",");
+                    SPLIT(
+                        TEXTJOIN("*"; FALSO; row)
+                        & "*" &
+                        TEXTJOIN("*"; FALSO;
+                            QUERY(DB_Familias; "SELECT O, P, Q where A = '"& __uuid &"'")
+                        );
+                    "*")
+                )
+            )
+        )
+    );
+    table_1; QUERY(Tabela_1[Submission_uuid]; "SELECT * where Col1 is NOT NULL");
+    ARRAYFORMULA(
+        SE(
+            (
+                (
+                    SEERRO(PROCV(table_1; table; 2; FALSE); 0) +
+                    SEERRO(PROCV(table_1; table; 4; FALSE); 0) +
+                    SEERRO(PROCV(table_1; table; 5; FALSE); 0) +
+                    SEERRO(PROCV(table_1; table; 6; FALSE); 0)
+                ) / SEERRO(PROCV(table_1; table; 3; FALSE); 1)
+            ) < 670,6;
+            0,1;
+            0
+        )
+    )
+)

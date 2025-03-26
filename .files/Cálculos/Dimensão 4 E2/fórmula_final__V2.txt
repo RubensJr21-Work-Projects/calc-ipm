@@ -1,0 +1,49 @@
+Dimensão E2:
+Generaliza a função anterior para que seja executada para todas os IDS da Tabela Principal
+OBS: o único jeito de GERAR um #N/A é para o caso da consulta que é passada para o REDUCE não retornar nenhum registro
+=BYROW(
+    QUERY(DB_Familias; "SELECT A, F where A is not NULL");
+    LAMBDA(row_root;
+        SEERRO(
+            SE(
+                REDUCE(
+                    VERDADEIRO;
+                    QUERY(
+                        BYROW(
+                            QUERY(DB_Membros; "SELECT D, Q, R where A = '"&ÍNDICE(row_root; 1; 1)&"'");
+                            LAMBDA(
+                                row;
+                                SPLIT(
+                                    TEXTJOIN(
+                                        ",";
+                                        FALSO;
+                                        ÍNDICE(row; 1; 1);
+                                        DATA_DIF_ANY(
+                                            ÍNDICE(row; 1; 1);
+                                            ÍNDICE(row_root; 1; 2);
+                                            "Y"
+                                        ) >= 25;
+                                        E(
+                                            NÃO(IN_ARRAY(
+                                                ÍNDICE(row; 1; 2); {"EMD"\"EJM"\"SUP"}
+                                            ));
+                                            NÃO(IN_ARRAY(
+                                                ÍNDICE(row; 1; 3); {"1G8"\"F9A"\"M1A"\"M2A"\"M3A"}
+                                            ))
+                                        )
+                                    );
+                                    ","
+                                )
+                            )
+                        )
+                        ; "SELECT Col3 where Col2 = TRUE"
+                    );
+                    LAMBDA(bool;row;E(bool;row))
+                );
+                0,1;
+                0
+            );
+            0 
+        )
+    )
+)

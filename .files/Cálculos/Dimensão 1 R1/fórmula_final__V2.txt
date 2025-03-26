@@ -1,0 +1,24 @@
+=BYROW(
+	QUERY(DB_Familias; "SELECT F, N where A is not NULL");
+	LAMBDA(
+		row;
+		LET(
+			Dt_Coleta; ÍNDICE(row; 1 ; 1);
+			dt_CadUnico; ÍNDICE(row; 1; 2);
+
+			dt_CadUnico_vazio; OU(
+						ÉCÉL.VAZIA(dt_CadUnico);
+						dt_CadUnico = ""
+					);
+
+			SE(
+				OU(
+					dt_CadUnico_vazio;
+					ABS(DATADIF(dt_CadUnico; Dt_Coleta; "M"))>24;
+				);
+				0,1;
+				0
+			)
+		)
+	)
+)
