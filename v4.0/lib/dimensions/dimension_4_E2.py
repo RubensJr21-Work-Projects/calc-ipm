@@ -8,18 +8,23 @@ def E2(base_main: pd.DataFrame, base_membros: pd.DataFrame) -> pd.DataFrame:
     # 1. Verificar se Idade >= 25
     b_membros["Idade >= 25"] = b_membros["Idade"] >= 25
 
-    # 2. Verificar se 'M19 - Qual foi o curso mais elevado que frequentou, no qual concluiu pelo menos uma série/ano?' não está na lista ["EJF", "EJM", "SUP"]
+    # 2. Verificar se 'M19 - Qual foi o curso mais elevado que frequentou, no qual concluiu pelo menos uma série/ano?' != ["Ensino Fundamental EJA - séries finais (Supletivo 5ª a 8ª)", "Ensino Médio EJA (Supletivo)", "Superior, Aperfeiçoamento, Especialização, Mestrado, Doutorado"]
     ## OBS: EDM Não estava na base de cáluclo enviada pelo Rafael
     values_for_opt_educacao = [
-        # "EDM", # Deve ser desconsiderado
-        "EJF", # Estava faltando (Revisão dia 27/02/2025)
-        "EJM",
-        "SUP"
+        "Ensino Fundamental EJA - séries finais (Supletivo 5ª a 8ª)", # Estava faltando (Revisão dia 27/02/2025)
+        "Ensino Médio EJA (Supletivo)",
+        "Superior, Aperfeiçoamento, Especialização, Mestrado, Doutorado"
     ]
     b_membros["Não concluiu o ensino médio"] = ~b_membros["M19 - Qual foi o curso mais elevado que frequentou, no qual concluiu pelo menos uma série/ano?"].fillna('').isin(values_for_opt_educacao)
 
-    # 3. Verificar M19.1 - E qual foi a última série que foi aprovado? não está na lista ["1G8", "F9A", "M1A", "M2A", "M3A"]
-    values_for_opt_educacao_Grad = ["1G8", "F9A", "M1A", "M2A", "M3A"]
+    # 3. Verificar M19.1 != ["8ª série", "9º ano (curso completo)", "1º ano", "2º ano", "3º ano (curso completo)"]
+    values_for_opt_educacao_Grad = [
+        "8ª série", # Olhando no formulário do Kobo v4.0 ao invés de "8ª série (curso completo)" é "8ª série"
+        "9º ano (curso completo)",
+        "1º ano",
+        "2º ano",
+        "3º ano (curso completo)"
+    ]
     b_membros["Não concluiu o ensino fundamental"] = ~b_membros["M19.1 - E qual foi a última série que foi aprovado?"].fillna('').isin(values_for_opt_educacao_Grad)
 
     # 4. Cria uma nova coluna testando aquele membro atende a todas as verificações
