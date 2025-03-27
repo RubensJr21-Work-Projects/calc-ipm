@@ -24,10 +24,10 @@ def N1(base_main: pd.DataFrame, base_familias: pd.DataFrame, base_membros: pd.Da
         "45 - Nos últimos 3 meses, algum menor de 18 anos da família, por falta de dinheiro, fez apenas uma refeição ao dia ou ficou sem comer por um dia inteiro?",
     ]
 
-    # Contando quantos valores são 'S' em cada linha
-    b_familias['Soma_EBIA'] = b_familias[questionsEBIAs].apply(lambda x: (x == 'S').sum(), axis=1) # Estava N
+    # Contando quantos valores são 'Sim' em cada linha
+    b_familias['Soma_EBIA'] = b_familias[questionsEBIAs].apply(lambda x: (x == 'Sim').sum(), axis=1) # Estava N
 
-    b_membros["0 <= Idade < 18"] = b_membros["Idade"].between(0-1, 18, inclusive="neither")
+    b_membros["0 <= Idade < 18"] = b_membros["Idade"].between(0, 18, inclusive="left")
 
     # Agrupando por Id_familia e verificando se pelo menos um membro atende à condição
     df_resultado = b_membros.groupby('_id')['0 <= Idade < 18'].any().reset_index()
