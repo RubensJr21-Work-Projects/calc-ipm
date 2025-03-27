@@ -1,7 +1,7 @@
 from typing import TypedDict
 
 import pandas as pd
-
+from dateutil.relativedelta import relativedelta
 from lib.core import ValidFileExcel
 from lib.rename_sheet_configs import Sheet_Configs_Type
 
@@ -68,16 +68,18 @@ def generate_main(base_familias: pd.DataFrame, base_membros: pd.DataFrame) -> pd
         family_member_count = base_membros.groupby("_id").size()
         main_data["Total de Membros"] = main_data["_id"].map(family_member_count).fillna(0).astype(int)
 
-    # Número de crianças (exemplo: idade < 12 anos)
-    if "M2 - Data de nascimento" in base_membros.columns:
-        base_membros["Idade"] = pd.to_datetime("today").year - pd.to_datetime(base_membros["M2 - Data de nascimento"], errors="coerce").dt.year
-        children_count = base_membros[base_membros["Idade"] < 12].groupby("_id").size()
-        main_data["Crianças (<12 anos)"] = main_data["_id"].map(children_count).fillna(0).astype(int)
+    # Calcula idade dos membros
+    base_membros["Idade"] = base_membros.apply(
+        lambda row: relativedelta(row["2 - Data da entrevista"], row["M2 - Data de nascimento"]).years,
+        axis=1
+    ).astype(int)
 
     return main_data
 
 def create_main_from_excel_files_with_columns_valids(excel_files_with_columns_valids: list[ValidFileExcel], sheet_configs: Sheet_Configs_Type) -> list[FinalDataFrameGroup]:
     def process_by_file(excel_file: ValidFileExcel, configs: Sheet_Configs_Type) -> FinalDataFrameGroup:
+        # Adiciona coluna com a Data de Aplicação do formulário
+        excel_file["Base_Membros"] = pd.merge(excel_file["Base_Membros"], excel_file["Base_Familias"][["_id", "2 - Data da entrevista"]], on="_id", how="left")
         return {
             "Base_Familias": excel_file["Base_Familias"],
             "Base_Membros": excel_file["Base_Membros"],

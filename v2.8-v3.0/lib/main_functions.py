@@ -1,7 +1,7 @@
 from typing import TypedDict
 
 import pandas as pd
-
+from dateutil.relativedelta import relativedelta
 from lib.core import ValidFileExcel
 from lib.rename_sheet_configs import Sheet_Configs_Type
 
@@ -67,13 +67,13 @@ def generate_main(base_familias: pd.DataFrame, base_membros: pd.DataFrame) -> pd
     if "_uuid" in base_membros.columns:
         family_member_count = base_membros.groupby("_uuid").size()
         main_data["Total de Membros"] = main_data["_uuid"].map(family_member_count).fillna(0).astype(int)
-
-    # Número de crianças (exemplo: idade < 12 anos)
-    if "dt_Nascimento" in base_membros.columns:
-        base_membros["Idade"] = pd.to_datetime("today").year - pd.to_datetime(base_membros["dt_Nascimento"], errors="coerce").dt.year
-        children_count = base_membros[base_membros["Idade"] < 12].groupby("_uuid").size()
-        main_data["Crianças (<12 anos)"] = main_data["_uuid"].map(children_count).fillna(0).astype(int)
     
+    # Calcula idade dos membros
+    base_membros["Idade"] = base_membros.apply(
+        lambda row: relativedelta(row["Dt_Coleta"], row["dt_Nascimento"]).years,
+        axis=1
+    ).astype(int)
+
     # Exemplo de outra coluna calculada: total de benefícios (ex: PBF + Estadual)
     main_data["Total de Benefícios"] = (
         base_familias["integer_PBF"] + base_familias["integer_Estadual"]
@@ -83,6 +83,8 @@ def generate_main(base_familias: pd.DataFrame, base_membros: pd.DataFrame) -> pd
 
 def create_main_from_excel_files_with_columns_valids(excel_files_with_columns_valids: list[ValidFileExcel], sheet_configs: Sheet_Configs_Type) -> list[FinalDataFrameGroup]:
     def process_by_file(excel_file: ValidFileExcel, configs: Sheet_Configs_Type) -> FinalDataFrameGroup:
+         # Adiciona coluna com a Data de Aplicação do formulário
+        excel_file["Base_Membros"] = pd.merge(excel_file["Base_Membros"], excel_file["Base_Familias"][["_uuid", "Dt_Coleta"]], on="_uuid", how="left")
         return {
             "Base_Familias": excel_file["Base_Familias"],
             "Base_Membros": excel_file["Base_Membros"],
