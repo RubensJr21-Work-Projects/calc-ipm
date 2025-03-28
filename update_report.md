@@ -1,9 +1,9 @@
 # Passo a passo para atualizar as informações do relatório
 
-* Atualizar fonte de dados "Kobo_Main.csv" adicionando nova versão ou atualização do formulário
-* Atualizar link na planilha "Famílias e Aplicações" dentro da página 'Configs' atualizar (ou adicionar) o link e o nome da tabela
-* Atualizar base de dados "Famílias acompanhadas"
-* Atualizar filtro e versão que será considerada para verificar status de "fora do perfil"
+1. Atualizar fonte de dados "Kobo_Main.csv" adicionando nova versão ou atualização do formulário
+1. Atualizar link na planilha "Famílias e Aplicações" dentro da página 'Configs' atualizar (ou adicionar) o link e o nome da tabela
+1. Atualizar base de dados "Famílias acompanhadas"
+1. Atualizar filtro e versão que será considerada para verificar status de "fora do perfil"
 
 ## Links úteis
 
