@@ -40,7 +40,7 @@ def I3(base_main: pd.DataFrame, base_familias: pd.DataFrame) -> pd.DataFrame:
         b_familias["20 - Como são preparadas as refeições?*"]
         .fillna('')
         .isin([
-            "Outro (Fogareiro, fogueira, usa combustíveis como álcool, querosene, diesel, papelão, plástico etc.)", # No arquivo 'v4.0_Questionário_Multidimensional.xlsx' na planilha 'choices' onde o list_name é 'gc8qb78' linha 50 especificamente apresenta a opção de "Outro (Fogareiro, fogueira, usa combustíveis como álcool, querosene, diesel, papelão, plástico etc.)" que pode ser uma opção ao "Óleo, querosene ou gás"
+            "Fogão, com gás encanado", # verificado no arquivo "Especificação técnica questionário_V4.0 - formato XLSX" enviado pelo drive
             "Fogão, com gás de botijão",
             "Equipamentos elétricos  (Forno, Microondas, Fogão, Chapa, AirFryer etc)"
         ])
@@ -61,7 +61,7 @@ def I3(base_main: pd.DataFrame, base_familias: pd.DataFrame) -> pd.DataFrame:
         .fillna('')
         .isin([
             "Fogão a lenha rudimentar ou improvisado",
-            "Outro (Fogareiro, fogueira, usa combustíveis como álcool, querosene, diesel, papelão, plástico etc.)" # Opção "Outra forma" não consta no formulário v4.0. Única opção que pode se assemelhar: "Outro (Fogareiro, fogueira, usa combustíveis como álcool, querosene, diesel, papelão, plástico etc.)"
+            "Outro (Fogareiro, fogueira, usa combustíveis como álcool, querosene, diesel, papelão, plástico etc.)" # Opção "Outra forma" não consta no formulário v4.0. Única opção que pode se assemelhar: "Outro (Fogareiro, fogueira, usa combustíveis como álcool, querosene, diesel, papelão, plástico etc.)" => confirmado no arquivo "Especificação técnica questionário_V4.0 - formato XLSX" enviado pelo drive
         ])
     )
 
